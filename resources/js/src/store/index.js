@@ -41,7 +41,7 @@ const store = createStore({
                 commit('addBook', data?.book);
                 return { ok: true, message: data?.message }
             } catch (error) {
-                return { ok: false, message: 'Hubo un error', }
+                return { ok: false, message: error?.response?.data?.message }
             }
         },
         updateBook: async ({ commit }, { payload, id }) => {
@@ -50,7 +50,7 @@ const store = createStore({
                 commit('updateBook', data?.book);
                 return { ok: true, message: data?.message }
             } catch (error) {
-                return { ok: false, message: 'Hubo un error', }
+                return { ok: false, message: error?.response?.data?.message }
             }
         },
         deleteBook: async ({ commit }, id) => {
@@ -66,6 +66,12 @@ const store = createStore({
     getters: {
         books: (state) => state.books,
         catalogs: (state) => state.catalogs,
+        bookByTitle: (state) => (title) => {
+            const books = state.books.filter(book => book.title === title);
+
+            if (!books) return [];
+            return books;
+        }
     }
 })
 

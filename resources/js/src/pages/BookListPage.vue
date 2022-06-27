@@ -1,14 +1,4 @@
 <template>
-    <div>
-        <div class="container-container mb-5">
-            <form class="d-flex justify-content-end" role="search">
-                <div class="col-4">
-                    <input class="form-control me-2" type="search" placeholder="Buscar libro" aria-label="Buscar libro">
-                </div>
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
-        </div>
-    </div>
     <div class="row justify-content-center" v-if="getting">
         <div class="spinner-border" role="status">
             <span class="visually-hidden">Loading...</span>

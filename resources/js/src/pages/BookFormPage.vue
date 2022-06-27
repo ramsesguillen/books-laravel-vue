@@ -3,7 +3,13 @@
     <div class="row justify-content-center" v-if="showAlert">
         <div class="col-5">
             <div class="alert alert-success" role="alert">
-                <!-- El libro ha eliminado un elememto de la lista. -->
+                {{ alertMsg }}
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center" v-if="showAlertError">
+        <div class="col-5">
+            <div class="alert alert-danger" role="alert">
                 {{ alertMsg }}
             </div>
         </div>
@@ -104,6 +110,7 @@
                     <small class="form-text text-muted"><ErrorMessage class="text-danger" name="provider"/></small>
                 </div>
                 <div class="col-12">
+                    <input class="btn btn-secondary" type="reset" value="Limpiar formulario" @click="bookId = null"/>
                     <button class="btn btn-primary" type="submit">{{ submitting ? 'Guardando...' : 'Guardar' }}</button>
                 </div>
             </form>
@@ -132,6 +139,7 @@ export default {
     },
     setup(props) {
         const showAlert = ref(false);
+        const showAlertError = ref(false);
         const alertMsg = ref('');
         const {
             formData,
@@ -142,6 +150,7 @@ export default {
             fillForm,
             bookId,
             updateBook,
+            resetForm,
         } = useBook();
 
         onMounted(async() => {
@@ -163,6 +172,8 @@ export default {
             formData,
             isEmpty,
             showAlert,
+            showAlertError,
+            bookId,
             onSubmit: async (values) => {
                 let resp;
                 if (bookId.value) {
@@ -174,8 +185,15 @@ export default {
                 }
                 if ( resp.ok ) {
                     showAlert.value = true;
+                    // resetForm();
+                    bookId.value = null;
                     setTimeout(() => {
                         showAlert.value = false;
+                    }, 3000);
+                } else {
+                    showAlertError.value = true;
+                    setTimeout(() => {
+                        showAlertError.value = false;
                     }, 3000);
                 }
             }

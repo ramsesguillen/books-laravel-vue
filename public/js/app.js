@@ -20743,7 +20743,7 @@ var store = createStore({
     }(),
     saveBook: function () {
       var _saveBook = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(_ref3, payload) {
-        var commit, _yield$bookServices$p, data;
+        var commit, _yield$bookServices$p, data, _error$response, _error$response$data;
 
         return _regeneratorRuntime().wrap(function _callee3$(_context3) {
           while (1) {
@@ -20768,7 +20768,7 @@ var store = createStore({
                 _context3.t0 = _context3["catch"](1);
                 return _context3.abrupt("return", {
                   ok: false,
-                  message: 'Hubo un error'
+                  message: _context3.t0 === null || _context3.t0 === void 0 ? void 0 : (_error$response = _context3.t0.response) === null || _error$response === void 0 ? void 0 : (_error$response$data = _error$response.data) === null || _error$response$data === void 0 ? void 0 : _error$response$data.message
                 });
 
               case 13:
@@ -20787,7 +20787,7 @@ var store = createStore({
     }(),
     updateBook: function () {
       var _updateBook = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(_ref4, _ref5) {
-        var commit, payload, id, _yield$bookServices$p2, data;
+        var commit, payload, id, _yield$bookServices$p2, data, _error$response2, _error$response2$data;
 
         return _regeneratorRuntime().wrap(function _callee4$(_context4) {
           while (1) {
@@ -20813,7 +20813,7 @@ var store = createStore({
                 _context4.t0 = _context4["catch"](2);
                 return _context4.abrupt("return", {
                   ok: false,
-                  message: 'Hubo un error'
+                  message: _context4.t0 === null || _context4.t0 === void 0 ? void 0 : (_error$response2 = _context4.t0.response) === null || _error$response2 === void 0 ? void 0 : (_error$response2$data = _error$response2.data) === null || _error$response2$data === void 0 ? void 0 : _error$response2$data.message
                 });
 
               case 14:
@@ -20881,6 +20881,15 @@ var store = createStore({
     },
     catalogs: function catalogs(state) {
       return state.catalogs;
+    },
+    bookByTitle: function bookByTitle(state) {
+      return function (title) {
+        var books = state.books.filter(function (book) {
+          return book.title === title;
+        });
+        if (!books) return [];
+        return books;
+      };
     }
   }
 });
