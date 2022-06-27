@@ -1,4 +1,13 @@
 <template>
+
+    <div class="row justify-content-center" v-if="showAlert">
+        <div class="col-5">
+            <div class="alert alert-success" role="alert">
+                <!-- El libro ha eliminado un elememto de la lista. -->
+                {{ alertMsg }}
+            </div>
+        </div>
+    </div>
     <div class="row justify-content-center">
         <div class="col-8">
             <Form class="row g-3" @submit="onSubmit">
@@ -35,14 +44,14 @@
                     <small class="form-text text-muted"><ErrorMessage class="text-danger" name="edition"/></small>
                 </div>
                 <div class="col-md-6">
-                    <label for="editionData" class="form-label">Datos de publicación</label>
+                    <label for="publishData" class="form-label">Datos de publicación</label>
                     <Field type="text"
                         class="form-control"
-                        id="editionData"
-                        name="editionData"
+                        id="publishData"
+                        name="publishData"
                         :rules="isEmpty"
-                        v-model="formData.editionData"/>
-                    <small class="form-text text-muted"><ErrorMessage class="text-danger" name="editionData"/></small>
+                        v-model="formData.publishData"/>
+                    <small class="form-text text-muted"><ErrorMessage class="text-danger" name="publishData"/></small>
                 </div>
                 <div class="col-md-6">
                     <label for="contentType" class="form-label">Tipo de contenido</label>
@@ -55,29 +64,34 @@
                     <small class="form-text text-muted"><ErrorMessage class="text-danger" name="contentType"/></small>
                 </div>
                 <div class="col-md-6">
-                    <label for="restricts" class="form-label">Restricciones</label>
+                    <label for="restrictId" class="form-label">Restricciones</label>
                     <Field
                         class="form-select"
-                        name="restricts"
-                        id="restricts"
+                        name="restrictId"
+                        id="restrictId"
                         as="select"
-                        v-model="formData.restricts"
+                        v-model="formData.restrictId"
                         :rules="isEmpty"
                     >
                         <option selected disabled>Choose...</option>
-                        <option value="1">1</option>
+                        <option v-for="item in catalogs?.restricts" :key="item.id" :value="item.id">{{ item.description }}</option>
                     </Field>
-                <small class="form-text text-muted"><ErrorMessage class="text-danger" name="restricts"/></small>
+                    <small class="form-text text-muted"><ErrorMessage class="text-danger" name="restrictId"/></small>
                 </div>
                 <div class="col-md-6">
-                    <label for="topic" class="form-label">Materia</label>
-                    <Field type="text"
-                        class="form-control"
-                        name="topic"
-                        id="topic"
+                    <label for="topicId" class="form-label">Materia</label>
+                    <Field
+                        class="form-select"
+                        name="topicId"
+                        id="topicId"
+                        as="select"
+                        v-model="formData.topicId"
                         :rules="isEmpty"
-                        v-model="formData.topic"/>
-                    <small class="form-text text-muted"><ErrorMessage class="text-danger" name="topic"/></small>
+                    >
+                        <option selected disabled>Choose...</option>
+                        <option v-for="item in catalogs?.topics" :key="item.id" :value="item.id">{{ item.description }}</option>
+                    </Field>
+                    <small class="form-text text-muted"><ErrorMessage class="text-danger" name="topicId"/></small>
                 </div>
                 <div class="col-md-6">
                     <label for="provider" class="form-label">Proveedor</label>
@@ -90,7 +104,7 @@
                     <small class="form-text text-muted"><ErrorMessage class="text-danger" name="provider"/></small>
                 </div>
                 <div class="col-12">
-                    <button class="btn btn-primary" type="submit">Guardar</button>
+                    <button class="btn btn-primary" type="submit">{{ submitting ? 'Guardando...' : 'Guardar' }}</button>
                 </div>
             </form>
         </div>
@@ -99,9 +113,10 @@
 
 /*  */
 <script>
-import { reactive } from 'vue';
+import { onMounted, ref } from 'vue';
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import { required, min, max } from '@vee-validate/rules';
+import useBook from '../composables/useBook';
 
 export default {
     components: {
@@ -109,16 +124,29 @@ export default {
         Form,
         ErrorMessage,
     },
-    setup() {
-        const formData = reactive({
-            title: null,
-            author: null,
-            edition: null,
-            editionData: null,
-            contentType: null,
-            restricts: null,
-            topic: null,
-            provider: null,
+    props: {
+        bookToUpdate: {
+            type: Object,
+            required: false,
+        },
+    },
+    setup(props) {
+        const showAlert = ref(false);
+        const alertMsg = ref('');
+        const {
+            formData,
+            submitting,
+            getCatalogs,
+            catalogs,
+            saveBook,
+            fillForm,
+            bookId,
+            updateBook,
+        } = useBook();
+
+        onMounted(async() => {
+            fillForm(props.bookToUpdate);
+            await getCatalogs();
         });
 
         const isEmpty = (value) => {
@@ -129,10 +157,27 @@ export default {
         }
 
         return {
+            submitting,
+            alertMsg,
+            catalogs,
             formData,
             isEmpty,
-            onSubmit: (values) => {
-                console.log(values)
+            showAlert,
+            onSubmit: async (values) => {
+                let resp;
+                if (bookId.value) {
+                    resp = await updateBook(values, bookId.value);
+                    alertMsg.value = resp.message;
+                } else {
+                    resp = await saveBook(values);
+                    alertMsg.value = resp.message;
+                }
+                if ( resp.ok ) {
+                    showAlert.value = true;
+                    setTimeout(() => {
+                        showAlert.value = false;
+                    }, 3000);
+                }
             }
         }
     }

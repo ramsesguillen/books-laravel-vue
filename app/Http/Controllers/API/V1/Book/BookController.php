@@ -16,7 +16,7 @@ class BookController extends Controller
     public function index()
     {
         try {
-            $books = Book::with('topic', 'restrict')->get();
+            $books = Book::with('topic', 'restrict')->orderBy('id', 'desc')->get();
 
             return response([
                 'message' => 'Libros obtenidos correctamente',
@@ -43,7 +43,7 @@ class BookController extends Controller
             return response([
                 'message' => 'El libro se guardo correctamente',
                 'success' => true,
-                'books' => Book::with('topic', 'restrict')->where('id', $book->id)->get()
+                'book' => Book::with('topic', 'restrict')->find($book->id)
             ], Response::HTTP_CREATED);
         } catch (\Throwable $th) {
             return $this->errorResponse([
@@ -71,7 +71,7 @@ class BookController extends Controller
             return response([
                 'message' => 'Libro actualizado correctamente',
                 'success' => true,
-                'book' => Book::with('topic', 'restrict')->where('id', $book->id)->get()
+                'book' => Book::with('topic', 'restrict')->find($book->id)
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
             return $this->errorResponse([
